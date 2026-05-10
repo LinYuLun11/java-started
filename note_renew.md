@@ -436,3 +436,222 @@ Java OOP核心之一，封裝(Encapsulation)
 核心思想：資料不要直接暴露，而是透過方式進行存取
 
 其實getter/setter不只可以存取，setter可以加上限制，getter可以進行加工
+
+## Inheritance(繼承)
+
+核心概念：子類別繼承父類別的能力 -> 可以直接繼承共用功能。
+目的：共用的內容只要放在一處就好，避免重複的程式碼出現。
+
+What is extends？
+class dog extends Animal -> dog 繼承 Animal
+
+繼承之後，子類別會獲得父類別的field(屬性)、method(方法)
+
+```java
+public class Father{
+    public String name;
+    public Father(String name){
+        this.name = name;
+    }
+
+    public void print(){
+        System.out.println(this.name);
+    }
+}
+
+public class Child extends Father{
+    public int number;
+    public Child(String name,int num){
+        super(name);    //super() -> 呼叫父類參數建構式
+        this.number = num;
+    }
+}
+
+public class inheritance {
+    public static void main(String[] args){
+        Child son = new Child("Bob", 15);
+        son.print();
+    }
+}
+```
+
+## Upcasting/Downcasting
+
+父纇與子類之間的型別關係
+
+Upcasting -> 向上轉型
+Overriding + Upcasting
+
+```java
+class Animal {
+
+    void sound() {
+        System.out.println("動物");
+    }
+}
+
+class Dog extends Animal {
+
+    @Override
+    void sound() {
+        System.out.println("汪");
+    }
+}
+
+Animal a = new Dog();
+a.sound();  // result: 汪
+```
+
+這就是polymorphism(多型)
+同樣是Animal，可能是 new Dog() or new Cat() or new Bird()，這樣 a.sound();會有不同的結果。
+
+Downcasting -> 向下轉型
+Downcasting必須強制轉型，因為不是所有animal都是dog
+
+```java
+Animal a = new Dog();
+
+Dog d = (Dog)a;
+
+d.bark();
+```
+
+instanceof -> 為了解決 Downcast爆炸
+```java
+a instanceof Dog // a 是不是 Dog 類型
+```
+
+安全Downcast
+```java
+Animal a = new Dog();
+
+if(a instanceof Dog) {
+
+    Dog d = (Dog)a;
+
+    d.bark();
+}
+```
+
+## Abstract Class(抽象類別) and Interface(介面)
+
+inheritance解決「共通內容」
+abstract/interface解決「規則與設計」
+
+### abstract核心思想：
+概念存在，但不能直接實體化
+
+```java
+abstract class Animal{
+
+}
+Animal a = new Animal(); //❌ 錯誤，不能使用new，因為abstract class 不完整
+```
+
+完整範例：
+```java
+abstract class Animal {
+
+    String name;
+
+    Animal(String name) {
+        this.name = name;
+    }
+
+    abstract void sound();
+}
+
+class Dog extends Animal {
+
+    Dog(String name) {
+        super(name);
+    }
+
+    //why override? -> 因為Animal規定了abstract method，所以子類別一定要實作
+    //若不override，Dog也必須變abstract
+    @Override
+    void sound() {
+        System.out.println("汪");
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Dog dog = new Dog("Bob");
+
+        dog.sound();
+    }
+}
+```
+
+abstract class可以有普通method
+```java
+abstract class Animal {
+
+    void eat() {
+        System.out.println("吃東西");
+    }
+
+    abstract void sound();
+}
+```
+
+abstract class常見用途： 共通功能+強制規則
+
+### interface核心思想
+不是「是什麼」，而是「能做什麼」，interface就像能力標籤
+
+```java
+interface Flyable {
+    void fly();
+}
+```
+
+### implements
+class 使用 interface
+```java
+class Bird implements Flyable{
+
+}
+```
+並非使用 extends
+
+完整範例：
+```java
+interface Flyable {
+    void fly(); //預設其實是public abstract，所以其實這個等於public abstract void fly();
+}
+
+class Bird implements Flyable {
+    @Override
+    public void fly() { //  必須為public
+        System.out.println("飛行");
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+        Bird b = new Bird();
+        b.fly();
+    }
+}
+```
+
+為甚麼需要interface？
+->java只能單繼承
+->但interface可以多實作，例如： class Duck implements Flyable, Swimmable
+->讓一個class能擁有多種能力
+
+### Abstract vs Interface
+|                | Abstract  | Interface  |
+| -------------  | --------  | ---------- |
+|   關係         | 是什麼     | 能做什麼       |
+|   關鍵字       | extends    | implements |
+| 能有普通method | ✅        | 以前❌ 現在部分✅  |
+|   能有field    | ✅        | 常數 only    |
+|   constructor | ✅         | ❌          |
+|   多繼承       | ❌         | ✅          |
+|   使用情境     | 共通基底    | 規格/能力      |
